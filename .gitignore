@@ -7,3 +7,4 @@ DerivedData/
 .swiftpm/xcode/package.xcworkspace/contents.xcworkspacedata
 .netrc
 /Tests/LLMKitOpenAITests/Keys.swift
+Tests/LLMKitOpenAITests/Keys.swift

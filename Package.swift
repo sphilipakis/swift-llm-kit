@@ -12,13 +12,13 @@ let package = Package(
         .library(
             name: "LLMKit",
             targets: ["LLMKit"]),
-        .library(name: "LLMKitOpenAI", targets: ["LLMKitOpenAI"])
+        .library(
+            name: "LLMKitOpenAI",
+            targets: ["LLMKitOpenAI"]
+        ),
     ],
     dependencies: [
-        .package(
-              url: "https://github.com/apple/swift-syntax.git",
-              from: "509.0.0"
-              ),
+        .package(url: "https://github.com/apple/swift-syntax.git", from: "509.0.0" ),
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -29,7 +29,11 @@ let package = Package(
         ),
         .testTarget(
             name: "LLMKitTests",
-            dependencies: ["LLMKit", .product(name: "SwiftSyntaxMacrosTestSupport", package: "swift-syntax"),]),
+            dependencies: [
+                "LLMKit",
+                .product(name: "SwiftSyntaxMacrosTestSupport", package: "swift-syntax"),
+            ]
+        ),
         .target(
             name: "LLMKitOpenAI",
             dependencies: ["LLMKit"]
@@ -38,17 +42,13 @@ let package = Package(
             name: "LLMKitOpenAITests",
             dependencies: ["LLMKitOpenAI"]
         ),
-        .macro(name: "LLMToolMacros",
-              dependencies: [
-                .product(
-                          name: "SwiftSyntaxMacros",
-                          package: "swift-syntax"
-                        ),
-                        .product(
-                          name: "SwiftCompilerPlugin",
-                          package: "swift-syntax"
-                        )
-              ]),
+        .macro(
+            name: "LLMToolMacros",
+            dependencies: [
+                .product(name: "SwiftSyntaxMacros", package: "swift-syntax" ),
+                .product(name: "SwiftCompilerPlugin", package: "swift-syntax" ),
+            ]
+        ),
         
     ]
 )

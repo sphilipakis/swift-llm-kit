@@ -18,8 +18,8 @@ public struct OpenAIClientErrorResponse: Decodable {
     }
 }
 
-public enum OpenAIClientResponse<P:Decodable>: Decodable {
-    case error(OpenAIClientErrorResponse)
+public enum OpenAIClientResponse<P: Decodable, ERR: Decodable>: Decodable {
+    case error(ERR)
     case payload(P)
     enum CodingKeys: CodingKey {
         case error
@@ -29,14 +29,14 @@ public enum OpenAIClientResponse<P:Decodable>: Decodable {
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         do {
-            let err = try container.decode(OpenAIClientErrorResponse.self)
+            let err = try container.decode(ERR.self)
             self = .error(err)
         } catch {
             do {
                 let p = try container.decode(P.self)
                 self = .payload(p)
             } catch {
-                throw DecodingError.typeMismatch(OpenAIClientResponse<P>.self, DecodingError.Context.init(codingPath: container.codingPath,debugDescription: "Wrong type", underlyingError: nil))
+                throw DecodingError.typeMismatch(OpenAIClientResponse<P, ERR>.self, DecodingError.Context.init(codingPath: container.codingPath,debugDescription: "Wrong type", underlyingError: nil))
             }
         }
     }
@@ -190,10 +190,9 @@ public struct OpenAIClient {
         )
     }
     
-    public func runRequest<M: Decodable>(_ req: URLRequest, session: URLSession? = nil) async throws -> OpenAIClientResponse<M> {
+    public func runRequest<P: Decodable, ERR: Decodable>(_ req: URLRequest, session: URLSession? = nil) async throws -> OpenAIClientResponse<P, ERR> {
         let result = try await (session ?? self.session).data(for: req)
         let decoder = JSONDecoder()
-        print(">>>>\(String(data: result.0, encoding: .utf8))")
-        return try decoder.decode(OpenAIClientResponse<M>.self, from: result.0)
+        return try decoder.decode(OpenAIClientResponse<P, ERR>.self, from: result.0)
     }
 }

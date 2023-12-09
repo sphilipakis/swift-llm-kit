@@ -10,11 +10,23 @@ import XCTest
 import LLMKit
 
 final class LLMKitOpenAITests: XCTestCase {
-    
+    func test_OpenAI_completionCall_wrongKey() async throws {
+        let llm = LLMKit
+            .openAI(apiKey: "wrongAPITest", model: .gpt3_5Turbo)
+            .fallback(to: .constant("An error occured")) { chain in
+                if case .error(_) = chain.output.lastItem {
+                    return true
+                } else {
+                    return false
+                }
+            }
+        let result = try await llm.debug(system: "this is an integration test", messages: [.user("hello")])
+        dump(result)
+    }
     func test_OpenAI_completionCall() async throws {
         let llm: LLMKit = .openAI(
             apiKey: Keys.openAI,
-            model: .gpt4
+            model: .gpt3_5Turbo
         )
         let result = try await llm.debug(system: "you speak and answer in french", messages: [.user("hello")])
         dump(result)
@@ -47,7 +59,17 @@ final class LLMKitOpenAITests: XCTestCase {
                         let tool = GreetingTool()
                         if let payload = try GreetingTool.decode(arguments) {
                             if let response = try await tool.call(payload) {
-                                let result2 = try await llm.complete(result.appending(.tool(response, toolCallID: id)))
+                                let result2 = try await llm.complete(
+                                    result
+                                        .appending(
+                                            .message(
+                                                .tool(
+                                                    response,
+                                                    toolCallID: id
+                                                )
+                                            )
+                                        )
+                                )
                                 dump(result2.output.messages)
                             }
                         }

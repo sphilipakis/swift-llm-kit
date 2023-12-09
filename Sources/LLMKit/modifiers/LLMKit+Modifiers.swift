@@ -16,7 +16,7 @@ public extension LLMKit {
 }
 
 public extension LLMKit {
-    func pipe(to other: LLMKit) -> LLMKit {
+    func pipe(to other: LLMKit) -> Self {
         .init { chain in
             let newChain = try await self(chain: chain)
             let otherChain = try await other(chain: newChain)
@@ -26,14 +26,22 @@ public extension LLMKit {
 }
 
 public extension LLMKit {
-    func fallback(to other: LLMKit) -> LLMKit {
+    func fallback(to other: Self, isFailure: @escaping (CompletionChain<OutputError>) -> Bool) -> Self {
         .init { chain in
             do {
-                return try await self(chain: chain)
+                let completion = try await self(chain: chain)
+                if isFailure(completion) {
+                    return try await other(chain: chain)
+                } else {
+                    return completion
+                }
             } catch {
                 return try await other(chain: chain)
             }
         }
+    }
+    func fallback(to other: Self ) -> Self {
+        fallback(to: other, isFailure: { _ in false })
     }
 }
 

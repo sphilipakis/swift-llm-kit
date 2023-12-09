@@ -29,7 +29,7 @@ extension ChatLog  {
 
 
 
-public extension LLMKit {
+public extension LLMKit where OutputError == OpenAIClientErrorResponse {
     
     static func openAI(
         apiKey: String,
@@ -74,17 +74,16 @@ public extension LLMKit {
             let request : URLRequest = try client.createChatCompletionRequest(
                 payload
             )
-            let response : OpenAIClientResponse<Model.ChatCompletion> = try await client.runRequest(request)
+            let response : OpenAIClientResponse<Model.ChatCompletion, OpenAIClientErrorResponse> = try await client.runRequest(request)
             switch response {
             case .error(let openAIClientErrorResponse):
                 print("[error] ", openAIClientErrorResponse.error)
-                return chain.appending(chatLog)
+                return chain.appending(.error(openAIClientErrorResponse))
             case .payload(let p):
                 let messageContent: Model.MessageContent? = p.choices.first.map {
                     Model.MessageContent.assistant($0.message.content, tool_calls: $0.message.toolCalls)
                 }
-                
-                return chain.appending(messageContent.map { chatLog.appending($0) } ?? chatLog)
+                return chain.appending(messageContent.map { chatLog.appending(.message($0))} ?? chatLog)
             }
         }
     }

@@ -196,16 +196,6 @@ public enum  Model {
                 throw DecodingError.dataCorruptedError(forKey: .object, in: container, debugDescription: "Invalid object value")
             }
         }
-
-//        public func encode(to encoder: Encoder) throws {
-//            var container = encoder.container(keyedBy: CodingKeys.self)
-//            try container.encode(id, forKey: .id)
-//            try container.encode("chat.completion", forKey: .object)
-//            try container.encode(created, forKey: .created)
-//            try container.encode(model, forKey: .model)
-//            try container.encodeIfPresent(systemFingerprint, forKey: .systemFingerprint)
-//            try container.encode(choices, forKey: .choices)
-//        }
     }
     
     public struct ChunkChoice: Decodable {
@@ -229,12 +219,6 @@ public enum  Model {
             self.delta = try container.decode(Model.Delta.self, forKey: Model.ChunkChoice.CodingKeys.delta)
             self.finishReason = try container.decodeIfPresent(Model.FinishReason.self, forKey: Model.ChunkChoice.CodingKeys.finishReason)
         }
-//        public func encode(to encoder: Encoder) throws {
-//            var container = encoder.container(keyedBy: CodingKeys.self)
-//            try container.encode(index, forKey: .index)
-//            try container.encode(delta, forKey: .delta)
-//            try container.encode(finishReason, forKey: .finishReason)
-//        }
     }
     
     public struct Delta: Decodable {
@@ -270,125 +254,6 @@ public enum  Model {
             }
         }
     }
-    
-//    /// https://platform.openai.com/docs/api-reference/chat/create
-//    public struct ChatCompletionRequestPayload: Encodable {
-//        public let messages: [MessageContent]
-//        public let model: String
-//        public let frequencyPenalty: Float?
-//        public let logitBias: [Int: Bias]?
-//        public let maxTokens: Int?
-//        public let n: Int?
-//        public let presencePenalty: Float?
-//        public let responseFormat: ResponseFormat?
-//        public let seed: Int?
-//        public let stop: [String]?
-//        public let stream: Bool?
-//        public let temperature: Float?
-//        public let top_p: Float?
-//        public let tools:[ToolDef]?
-//        public let toolChoice: ToolChoice?
-//        public let user: String?
-//
-//        public init(
-//            messages: [MessageContent],
-//            model: String,
-//            frequencyPenalty: Float?,
-//            logitBias: [Int : Bias]?,
-//            maxTokens: Int?,
-//            n: Int?,
-//            presencePenalty: Float?, 
-//            responseFormat: ResponseFormat?,
-//            seed: Int?,
-//            stop: [String]?,
-//            stream: Bool?,
-//            temperature: Float?,
-//            top_p: Float?,
-//            tools: [ToolDef]?,
-//            toolChoice: ToolChoice?,
-//            user: String?
-//        ) {
-//            self.messages = messages
-//            self.model = model
-//            self.frequencyPenalty = frequencyPenalty
-//            self.logitBias = logitBias
-//            self.maxTokens = maxTokens
-//            self.n = n
-//            self.presencePenalty = presencePenalty
-//            self.responseFormat = responseFormat
-//            self.seed = seed
-//            self.stop = stop
-//            self.stream = stream
-//            self.temperature = temperature
-//            self.top_p = top_p
-//            self.tools = tools
-//            self.toolChoice = toolChoice
-//            self.user = user
-//        }
-//        
-//        enum CodingKeys: String, CodingKey {
-//            case messages
-//            case model
-//            case frequencyPenalty = "frequency_penalty"
-//            case logitBias = "logit_bias"
-//            case maxTokens = "max_token"
-//            case n
-//            case presencePenalty = "presence_penalty"
-//            case responseFormat = "response_format"
-//            case seed
-//            case stop
-//            case stream
-//            case temperature
-//            case top_p
-//            case tools
-//            case toolChoice = "tool_choice"
-//            case user
-//        }
-//    }
-    
-//    // Tested
-//    public enum ToolChoice: Encodable {
-//        case none
-//        case auto
-//        case function(name: String)
-//        
-//        enum FunctionCodingKeys: CodingKey {
-//            case type
-//            case function
-//        }
-//        struct FunctionPayload: Encodable {
-//            let type: String
-//            let function: FunctionName
-//            struct FunctionName: Encodable {
-//                let name: String
-//            }
-//        }
-//            
-//        public func encode(to encoder: Encoder) throws {
-//            switch self {
-//            case .none:
-//                var container = encoder.singleValueContainer()
-//                try container.encode("none")
-//            case .auto:
-//                var container = encoder.singleValueContainer()
-//                try container.encode("auto")
-//            case .function(let name):
-//                var container = encoder.container(keyedBy: FunctionCodingKeys.self)
-//                try container.encode(FunctionPayload(type: "function", function: .init(name: name)), forKey: .function)
-//            }
-//        }
-//
-//    }
-    
-//    public struct ToolDef: Encodable {
-//        public let type: ToolType
-//        public let function: FunctionDef
-//    }
-//    public struct FunctionDef: Encodable {
-//        public let description: String
-//        public let name: String
-//        public let parameters: JSONSchema
-//    }
     
     public enum Role: String, Codable, Equatable {
         case system

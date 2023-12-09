@@ -1,19 +1,25 @@
 
 
-public struct LLMKit { 
-    public let complete: (CompletionChain) async throws -> CompletionChain
-    public init(complete: @Sendable @escaping (CompletionChain) async throws -> CompletionChain) {
+public struct LLMKit<OutputError> {
+    public let complete: (CompletionChain<OutputError>) async throws -> CompletionChain<OutputError>
+    public init(complete: @Sendable @escaping (CompletionChain<OutputError>) async throws -> CompletionChain<OutputError>) {
         self.complete = complete
     }
 
-    public func callAsFunction(chain: CompletionChain, message: String? = nil) async throws -> CompletionChain {
-        return try await complete(message.map { chain.appending(.user($0))} ?? chain )
+    public func callAsFunction(chain: CompletionChain<OutputError>, message: String? = nil) async throws -> CompletionChain<OutputError> {
+        try await complete(message.map { chain.appending(.message(.user($0)))} ?? chain)
     }
-    public func callAsFunction(system: String, messages: [Model.MessageContent]) async throws -> CompletionChain {
+    public func callAsFunction(system: String, messages: [Model.MessageContent]) async throws -> CompletionChain<OutputError> {
         try await self(chain: .init([.init(system: system, messages: messages)]))
     }
 }
-
+public extension LLMKit {
+    static func constant(_ message: String) -> Self {
+        .init { chain in
+            chain.appending(.message(.assistant(message, tool_calls: nil)))
+        }
+    }
+}
 
 // echo
 extension Model.MessageContent {
@@ -32,17 +38,17 @@ extension Model.MessageContent {
 }
 
 public extension LLMKit {
-    static var echo: LLMKit {
+    static var echo: Self {
         .init { chain in
             let echoResponse: Model.MessageContent = .assistant(chain.output.lastMessage.content, tool_calls: nil)
-            return chain.appending(echoResponse)
+            return chain.appending(.message(echoResponse))
         }
     }
 }
 
 // debug
 public extension LLMKit {
-    var debug: LLMKit {
+    var debug: Self {
         .init { chatLog in
             print(chatLog)
             return try await complete(chatLog)
