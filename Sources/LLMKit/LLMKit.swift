@@ -1,19 +1,22 @@
 
 
-public struct LLMKit<OutputError> {
-    public let complete: (CompletionChain<OutputError>) async throws -> CompletionChain<OutputError>
-    public init(complete: @Sendable @escaping (CompletionChain<OutputError>) async throws -> CompletionChain<OutputError>) {
+public struct LLMKit<InputError, OutputError> {
+    public let complete: (CompletionChain<InputError>) async throws -> CompletionChain<OutputError>
+    public init(complete: @Sendable @escaping (CompletionChain<InputError>) async throws -> CompletionChain<OutputError>) {
         self.complete = complete
     }
 
-    public func callAsFunction(chain: CompletionChain<OutputError>, message: String? = nil) async throws -> CompletionChain<OutputError> {
+    public func callAsFunction(
+        chain: CompletionChain<InputError>,
+        message: String? = nil
+    ) async throws -> CompletionChain<OutputError> {
         try await complete(message.map { chain.appending(.message(.user($0)))} ?? chain)
     }
     public func callAsFunction(system: String, messages: [Model.MessageContent]) async throws -> CompletionChain<OutputError> {
         try await self(chain: .init([.init(system: system, messages: messages)]))
     }
 }
-public extension LLMKit {
+public extension LLMKit where InputError == OutputError {
     static func constant(_ message: String) -> Self {
         .init { chain in
             chain.appending(.message(.assistant(message, tool_calls: nil)))
@@ -37,7 +40,7 @@ extension Model.MessageContent {
     }
 }
 
-public extension LLMKit {
+public extension LLMKit where InputError == OutputError {
     static var echo: Self {
         .init { chain in
             let echoResponse: Model.MessageContent = .assistant(chain.output.lastMessage.content, tool_calls: nil)
@@ -80,8 +83,8 @@ public extension LLMKit {
     }
 }
 
-public extension LLMKit {
-    public enum ModifierMode {
+public extension LLMKit where InputError == OutputError {
+    enum ModifierMode {
         case replace
         case append
     }

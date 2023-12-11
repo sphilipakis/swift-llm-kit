@@ -29,7 +29,7 @@ extension ChatLog  {
 
 
 
-public extension LLMKit where OutputError == OpenAIClientErrorResponse {
+public extension LLMKit where InputError == OutputError , OutputError == OpenAIClientErrorResponse {
     
     static func openAI(
         apiKey: String,

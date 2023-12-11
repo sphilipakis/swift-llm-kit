@@ -20,6 +20,10 @@ public extension Tool {
     static func toolDef(name: String? = nil, description: String) -> Model.ToolDef? {
         Payload.toolDef(name: name ?? "\(Self.self)", description: description)
     }
+    func decode(_ string: String) throws -> Self.Payload? {
+        let decoder = JSONDecoder()
+        return try decoder.decode(Payload.self, from: string.data(using: .utf8)!)
+    }
     static func decode(_ string: String) throws -> Self.Payload? {
         let decoder = JSONDecoder()
         return try decoder.decode(Payload.self, from: string.data(using: .utf8)!)

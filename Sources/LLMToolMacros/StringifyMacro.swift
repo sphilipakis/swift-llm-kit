@@ -33,6 +33,7 @@ extension DeclSyntax {
 
 public struct ToolMacro: MemberMacro, ExtensionMacro {
     public static func expansion(of node: AttributeSyntax, attachedTo declaration: some DeclGroupSyntax, providingExtensionsOf type: some TypeSyntaxProtocol, conformingTo protocols: [TypeSyntax], in context: some MacroExpansionContext) throws -> [ExtensionDeclSyntax] {
+        
         let decl: DeclSyntax = "extension \(type.trimmed): ToolPayload {}"
         return [
             decl.as(ExtensionDeclSyntax.self)!
@@ -60,7 +61,7 @@ public struct ToolMacro: MemberMacro, ExtensionMacro {
 
         return [
             """
-            static var toolSchema: ToolSchema {
+            \(declaration.modifiers) static var toolSchema: ToolSchema {
             .object([\(raw: propsMap)])
             }
             """,
