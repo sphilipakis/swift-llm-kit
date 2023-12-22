@@ -8,3 +8,4 @@ DerivedData/
 .netrc
 /Tests/LLMKitOpenAITests/Keys.swift
 Tests/LLMKitOpenAITests/Keys.swift
+Keys.swift
