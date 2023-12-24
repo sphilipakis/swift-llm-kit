@@ -7,15 +7,47 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		BB2298412B3537CF00D794B9 /* Playground.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB2298402B35379B00D794B9 /* Playground.swift */; };
+		BB2298442B35F3A100D794B9 /* ChatBubble.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB2298432B35F3A100D794B9 /* ChatBubble.swift */; };
+		BB2298472B3614B800D794B9 /* Combobox.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB2298462B3614B800D794B9 /* Combobox.swift */; };
+		BB2298492B36688D00D794B9 /* LLMKitMistral in Frameworks */ = {isa = PBXBuildFile; productRef = BB2298482B36688D00D794B9 /* LLMKitMistral */; };
+		BB22984C2B3683C000D794B9 /* MarkdownUI in Frameworks */ = {isa = PBXBuildFile; productRef = BB22984B2B3683C000D794B9 /* MarkdownUI */; };
+		BB22984E2B37411300D794B9 /* PlaygroundApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB22984D2B37411300D794B9 /* PlaygroundApp.swift */; };
+		BB2298512B3741E500D794B9 /* Persistence.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB2298502B3741E500D794B9 /* Persistence.swift */; };
+		BB2298542B3762C500D794B9 /* Chats.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB2298532B3762C500D794B9 /* Chats.swift */; };
+		BB2298572B37BE1000D794B9 /* Ink in Frameworks */ = {isa = PBXBuildFile; productRef = BB2298562B37BE1000D794B9 /* Ink */; };
+		BB2298592B37BE1000D794B9 /* ink-cli in Frameworks */ = {isa = PBXBuildFile; productRef = BB2298582B37BE1000D794B9 /* ink-cli */; };
+		BB22985C2B37C23B00D794B9 /* Dumpling in Frameworks */ = {isa = PBXBuildFile; productRef = BB22985B2B37C23B00D794B9 /* Dumpling */; };
+		BB22985F2B381A4100D794B9 /* AppReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB22985E2B381A4100D794B9 /* AppReducer.swift */; };
 		BB2FC4162B22A267008C2410 /* SampleAppApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB2FC4152B22A267008C2410 /* SampleAppApp.swift */; };
 		BB2FC4182B22A267008C2410 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB2FC4172B22A267008C2410 /* ContentView.swift */; };
 		BB2FC41A2B22A268008C2410 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BB2FC4192B22A268008C2410 /* Assets.xcassets */; };
 		BB2FC41D2B22A268008C2410 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BB2FC41C2B22A268008C2410 /* Preview Assets.xcassets */; };
 		BB2FC4392B22A4F7008C2410 /* LLMKit in Frameworks */ = {isa = PBXBuildFile; productRef = BB2FC4382B22A4F7008C2410 /* LLMKit */; };
 		BB2FC43B2B22A4F7008C2410 /* LLMKitOpenAI in Frameworks */ = {isa = PBXBuildFile; productRef = BB2FC43A2B22A4F7008C2410 /* LLMKitOpenAI */; };
+		BB9C62122B2AA68400816A1A /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = BB9C62112B2AA68400816A1A /* ComposableArchitecture */; };
+		BB9C62192B2AA92600816A1A /* Chat.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB9C62182B2AA92600816A1A /* Chat.swift */; };
+		BB9C621C2B2CD33000816A1A /* SimilaritySearchKit in Frameworks */ = {isa = PBXBuildFile; productRef = BB9C621B2B2CD33000816A1A /* SimilaritySearchKit */; };
+		BB9C621E2B2CD33000816A1A /* SimilaritySearchKitDistilbert in Frameworks */ = {isa = PBXBuildFile; productRef = BB9C621D2B2CD33000816A1A /* SimilaritySearchKitDistilbert */; };
+		BB9C62202B2CD33000816A1A /* SimilaritySearchKitMiniLMAll in Frameworks */ = {isa = PBXBuildFile; productRef = BB9C621F2B2CD33000816A1A /* SimilaritySearchKitMiniLMAll */; };
+		BB9C62222B2CD33000816A1A /* SimilaritySearchKitMiniLMMultiQA in Frameworks */ = {isa = PBXBuildFile; productRef = BB9C62212B2CD33000816A1A /* SimilaritySearchKitMiniLMMultiQA */; };
+		BB9C62252B2D06B100816A1A /* Rag.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB9C62242B2D06B100816A1A /* Rag.swift */; };
+		BB9C62272B2D44D400816A1A /* InputClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB9C62262B2D44D400816A1A /* InputClient.swift */; };
+		BB9C62292B2E34A300816A1A /* RagEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB9C62282B2E34A300816A1A /* RagEngine.swift */; };
+		BB9C622B2B31501F00816A1A /* RagStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB9C622A2B31501F00816A1A /* RagStorage.swift */; };
+		BB9C622D2B31DE1700816A1A /* LLMKitOllama in Frameworks */ = {isa = PBXBuildFile; productRef = BB9C622C2B31DE1700816A1A /* LLMKitOllama */; };
+		BB9C622F2B3325F000816A1A /* StructuredDoc.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB9C622E2B3325F000816A1A /* StructuredDoc.swift */; };
+		BB9C62312B33273E00816A1A /* Extractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB9C62302B33273E00816A1A /* Extractor.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		BB2298402B35379B00D794B9 /* Playground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Playground.swift; sourceTree = "<group>"; };
+		BB2298432B35F3A100D794B9 /* ChatBubble.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatBubble.swift; sourceTree = "<group>"; };
+		BB2298462B3614B800D794B9 /* Combobox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Combobox.swift; sourceTree = "<group>"; };
+		BB22984D2B37411300D794B9 /* PlaygroundApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaygroundApp.swift; sourceTree = "<group>"; };
+		BB2298502B3741E500D794B9 /* Persistence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Persistence.swift; sourceTree = "<group>"; };
+		BB2298532B3762C500D794B9 /* Chats.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Chats.swift; sourceTree = "<group>"; };
+		BB22985E2B381A4100D794B9 /* AppReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppReducer.swift; sourceTree = "<group>"; };
 		BB2FC4122B22A267008C2410 /* SampleApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SampleApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BB2FC4152B22A267008C2410 /* SampleAppApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SampleAppApp.swift; sourceTree = "<group>"; };
 		BB2FC4172B22A267008C2410 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -23,6 +55,13 @@
 		BB2FC41C2B22A268008C2410 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		BB2FC41E2B22A268008C2410 /* SampleApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SampleApp.entitlements; sourceTree = "<group>"; };
 		BB2FC4362B22A4BA008C2410 /* swift-llm-kit */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = "swift-llm-kit"; path = ..; sourceTree = "<group>"; };
+		BB9C62182B2AA92600816A1A /* Chat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Chat.swift; sourceTree = "<group>"; };
+		BB9C62242B2D06B100816A1A /* Rag.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Rag.swift; sourceTree = "<group>"; };
+		BB9C62262B2D44D400816A1A /* InputClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InputClient.swift; sourceTree = "<group>"; };
+		BB9C62282B2E34A300816A1A /* RagEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RagEngine.swift; sourceTree = "<group>"; };
+		BB9C622A2B31501F00816A1A /* RagStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RagStorage.swift; sourceTree = "<group>"; };
+		BB9C622E2B3325F000816A1A /* StructuredDoc.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StructuredDoc.swift; sourceTree = "<group>"; };
+		BB9C62302B33273E00816A1A /* Extractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extractor.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -30,14 +69,66 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BB9C62202B2CD33000816A1A /* SimilaritySearchKitMiniLMAll in Frameworks */,
+				BB9C621C2B2CD33000816A1A /* SimilaritySearchKit in Frameworks */,
+				BB9C621E2B2CD33000816A1A /* SimilaritySearchKitDistilbert in Frameworks */,
+				BB2298572B37BE1000D794B9 /* Ink in Frameworks */,
 				BB2FC4392B22A4F7008C2410 /* LLMKit in Frameworks */,
+				BB9C62222B2CD33000816A1A /* SimilaritySearchKitMiniLMMultiQA in Frameworks */,
+				BB2298592B37BE1000D794B9 /* ink-cli in Frameworks */,
 				BB2FC43B2B22A4F7008C2410 /* LLMKitOpenAI in Frameworks */,
+				BB2298492B36688D00D794B9 /* LLMKitMistral in Frameworks */,
+				BB22985C2B37C23B00D794B9 /* Dumpling in Frameworks */,
+				BB9C62122B2AA68400816A1A /* ComposableArchitecture in Frameworks */,
+				BB9C622D2B31DE1700816A1A /* LLMKitOllama in Frameworks */,
+				BB22984C2B3683C000D794B9 /* MarkdownUI in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		BB22983F2B35379B00D794B9 /* Playground */ = {
+			isa = PBXGroup;
+			children = (
+				BB2298402B35379B00D794B9 /* Playground.swift */,
+				BB2298502B3741E500D794B9 /* Persistence.swift */,
+			);
+			path = Playground;
+			sourceTree = "<group>";
+		};
+		BB2298422B35F38E00D794B9 /* ChatBubble */ = {
+			isa = PBXGroup;
+			children = (
+				BB2298432B35F3A100D794B9 /* ChatBubble.swift */,
+			);
+			path = ChatBubble;
+			sourceTree = "<group>";
+		};
+		BB2298452B3614A100D794B9 /* SwiftUI */ = {
+			isa = PBXGroup;
+			children = (
+				BB2298462B3614B800D794B9 /* Combobox.swift */,
+			);
+			path = SwiftUI;
+			sourceTree = "<group>";
+		};
+		BB2298522B3762BA00D794B9 /* Chats */ = {
+			isa = PBXGroup;
+			children = (
+				BB2298532B3762C500D794B9 /* Chats.swift */,
+			);
+			path = Chats;
+			sourceTree = "<group>";
+		};
+		BB22985D2B381A3400D794B9 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				BB22985E2B381A4100D794B9 /* AppReducer.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
 		BB2FC4092B22A267008C2410 = {
 			isa = PBXGroup;
 			children = (
@@ -59,7 +150,10 @@
 		BB2FC4142B22A267008C2410 /* SampleApp */ = {
 			isa = PBXGroup;
 			children = (
+				BB2298452B3614A100D794B9 /* SwiftUI */,
+				BB9C62162B2AA8F000816A1A /* Features */,
 				BB2FC4152B22A267008C2410 /* SampleAppApp.swift */,
+				BB22984D2B37411300D794B9 /* PlaygroundApp.swift */,
 				BB2FC4172B22A267008C2410 /* ContentView.swift */,
 				BB2FC4192B22A268008C2410 /* Assets.xcassets */,
 				BB2FC41E2B22A268008C2410 /* SampleApp.entitlements */,
@@ -83,6 +177,40 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		BB9C62162B2AA8F000816A1A /* Features */ = {
+			isa = PBXGroup;
+			children = (
+				BB22985D2B381A3400D794B9 /* App */,
+				BB2298522B3762BA00D794B9 /* Chats */,
+				BB2298422B35F38E00D794B9 /* ChatBubble */,
+				BB22983F2B35379B00D794B9 /* Playground */,
+				BB9C622E2B3325F000816A1A /* StructuredDoc.swift */,
+				BB9C62302B33273E00816A1A /* Extractor.swift */,
+				BB9C62262B2D44D400816A1A /* InputClient.swift */,
+				BB9C62232B2D06A600816A1A /* Rag */,
+				BB9C62172B2AA91800816A1A /* Chat */,
+			);
+			path = Features;
+			sourceTree = "<group>";
+		};
+		BB9C62172B2AA91800816A1A /* Chat */ = {
+			isa = PBXGroup;
+			children = (
+				BB9C62182B2AA92600816A1A /* Chat.swift */,
+			);
+			path = Chat;
+			sourceTree = "<group>";
+		};
+		BB9C62232B2D06A600816A1A /* Rag */ = {
+			isa = PBXGroup;
+			children = (
+				BB9C62242B2D06B100816A1A /* Rag.swift */,
+				BB9C62282B2E34A300816A1A /* RagEngine.swift */,
+				BB9C622A2B31501F00816A1A /* RagStorage.swift */,
+			);
+			path = Rag;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -102,6 +230,17 @@
 			packageProductDependencies = (
 				BB2FC4382B22A4F7008C2410 /* LLMKit */,
 				BB2FC43A2B22A4F7008C2410 /* LLMKitOpenAI */,
+				BB9C62112B2AA68400816A1A /* ComposableArchitecture */,
+				BB9C621B2B2CD33000816A1A /* SimilaritySearchKit */,
+				BB9C621D2B2CD33000816A1A /* SimilaritySearchKitDistilbert */,
+				BB9C621F2B2CD33000816A1A /* SimilaritySearchKitMiniLMAll */,
+				BB9C62212B2CD33000816A1A /* SimilaritySearchKitMiniLMMultiQA */,
+				BB9C622C2B31DE1700816A1A /* LLMKitOllama */,
+				BB2298482B36688D00D794B9 /* LLMKitMistral */,
+				BB22984B2B3683C000D794B9 /* MarkdownUI */,
+				BB2298562B37BE1000D794B9 /* Ink */,
+				BB2298582B37BE1000D794B9 /* ink-cli */,
+				BB22985B2B37C23B00D794B9 /* Dumpling */,
 			);
 			productName = SampleApp;
 			productReference = BB2FC4122B22A267008C2410 /* SampleApp.app */;
@@ -132,6 +271,11 @@
 			);
 			mainGroup = BB2FC4092B22A267008C2410;
 			packageReferences = (
+				BB9C62102B2AA68400816A1A /* XCRemoteSwiftPackageReference "swift-composable-architecture" */,
+				BB9C621A2B2CD33000816A1A /* XCRemoteSwiftPackageReference "similarity-search-kit" */,
+				BB22984A2B3683C000D794B9 /* XCRemoteSwiftPackageReference "swift-markdown-ui" */,
+				BB2298552B37BE1000D794B9 /* XCRemoteSwiftPackageReference "ink" */,
+				BB22985A2B37C23B00D794B9 /* XCRemoteSwiftPackageReference "Dumpling" */,
 			);
 			productRefGroup = BB2FC4132B22A267008C2410 /* Products */;
 			projectDirPath = "";
@@ -159,8 +303,22 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BB9C62312B33273E00816A1A /* Extractor.swift in Sources */,
 				BB2FC4182B22A267008C2410 /* ContentView.swift in Sources */,
+				BB2298472B3614B800D794B9 /* Combobox.swift in Sources */,
+				BB2298512B3741E500D794B9 /* Persistence.swift in Sources */,
+				BB22984E2B37411300D794B9 /* PlaygroundApp.swift in Sources */,
+				BB22985F2B381A4100D794B9 /* AppReducer.swift in Sources */,
+				BB9C622F2B3325F000816A1A /* StructuredDoc.swift in Sources */,
+				BB9C62192B2AA92600816A1A /* Chat.swift in Sources */,
+				BB2298442B35F3A100D794B9 /* ChatBubble.swift in Sources */,
+				BB9C62292B2E34A300816A1A /* RagEngine.swift in Sources */,
+				BB9C62272B2D44D400816A1A /* InputClient.swift in Sources */,
+				BB2298412B3537CF00D794B9 /* Playground.swift in Sources */,
+				BB9C622B2B31501F00816A1A /* RagStorage.swift in Sources */,
+				BB9C62252B2D06B100816A1A /* Rag.swift in Sources */,
 				BB2FC4162B22A267008C2410 /* SampleAppApp.swift in Sources */,
+				BB2298542B3762C500D794B9 /* Chats.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -362,7 +520,74 @@
 		};
 /* End XCConfigurationList section */
 
+/* Begin XCRemoteSwiftPackageReference section */
+		BB22984A2B3683C000D794B9 /* XCRemoteSwiftPackageReference "swift-markdown-ui" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/gonzalezreal/swift-markdown-ui";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.2.0;
+			};
+		};
+		BB2298552B37BE1000D794B9 /* XCRemoteSwiftPackageReference "ink" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/johnsundell/ink.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.6.0;
+			};
+		};
+		BB22985A2B37C23B00D794B9 /* XCRemoteSwiftPackageReference "Dumpling" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/chojnac/Dumpling.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.3.0;
+			};
+		};
+		BB9C62102B2AA68400816A1A /* XCRemoteSwiftPackageReference "swift-composable-architecture" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/pointfreeco/swift-composable-architecture";
+			requirement = {
+				branch = "observation-beta";
+				kind = branch;
+			};
+		};
+		BB9C621A2B2CD33000816A1A /* XCRemoteSwiftPackageReference "similarity-search-kit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/ZachNagengast/similarity-search-kit.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.0.11;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
 /* Begin XCSwiftPackageProductDependency section */
+		BB2298482B36688D00D794B9 /* LLMKitMistral */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = LLMKitMistral;
+		};
+		BB22984B2B3683C000D794B9 /* MarkdownUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = BB22984A2B3683C000D794B9 /* XCRemoteSwiftPackageReference "swift-markdown-ui" */;
+			productName = MarkdownUI;
+		};
+		BB2298562B37BE1000D794B9 /* Ink */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = BB2298552B37BE1000D794B9 /* XCRemoteSwiftPackageReference "ink" */;
+			productName = Ink;
+		};
+		BB2298582B37BE1000D794B9 /* ink-cli */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = BB2298552B37BE1000D794B9 /* XCRemoteSwiftPackageReference "ink" */;
+			productName = "ink-cli";
+		};
+		BB22985B2B37C23B00D794B9 /* Dumpling */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = BB22985A2B37C23B00D794B9 /* XCRemoteSwiftPackageReference "Dumpling" */;
+			productName = Dumpling;
+		};
 		BB2FC4382B22A4F7008C2410 /* LLMKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = LLMKit;
@@ -370,6 +595,35 @@
 		BB2FC43A2B22A4F7008C2410 /* LLMKitOpenAI */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = LLMKitOpenAI;
+		};
+		BB9C62112B2AA68400816A1A /* ComposableArchitecture */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = BB9C62102B2AA68400816A1A /* XCRemoteSwiftPackageReference "swift-composable-architecture" */;
+			productName = ComposableArchitecture;
+		};
+		BB9C621B2B2CD33000816A1A /* SimilaritySearchKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = BB9C621A2B2CD33000816A1A /* XCRemoteSwiftPackageReference "similarity-search-kit" */;
+			productName = SimilaritySearchKit;
+		};
+		BB9C621D2B2CD33000816A1A /* SimilaritySearchKitDistilbert */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = BB9C621A2B2CD33000816A1A /* XCRemoteSwiftPackageReference "similarity-search-kit" */;
+			productName = SimilaritySearchKitDistilbert;
+		};
+		BB9C621F2B2CD33000816A1A /* SimilaritySearchKitMiniLMAll */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = BB9C621A2B2CD33000816A1A /* XCRemoteSwiftPackageReference "similarity-search-kit" */;
+			productName = SimilaritySearchKitMiniLMAll;
+		};
+		BB9C62212B2CD33000816A1A /* SimilaritySearchKitMiniLMMultiQA */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = BB9C621A2B2CD33000816A1A /* XCRemoteSwiftPackageReference "similarity-search-kit" */;
+			productName = SimilaritySearchKitMiniLMMultiQA;
+		};
+		BB9C622C2B31DE1700816A1A /* LLMKitOllama */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = LLMKitOllama;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

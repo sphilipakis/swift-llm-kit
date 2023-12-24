@@ -1,28 +1,69 @@
 
 
-public struct LLMKit<InputError, OutputError> {
-    public let complete: (CompletionChain<InputError>) async throws -> CompletionChain<OutputError>
-    public init(complete: @Sendable @escaping (CompletionChain<InputError>) async throws -> CompletionChain<OutputError>) {
+
+
+public enum LLMCompletion<ERR> {
+    case chain(CompletionChain)
+    case error(ERR)
+}
+public struct LLMKit<ERR> {
+    public let complete: (CompletionChain, IDGenerator) async throws -> LLMCompletion<ERR>
+    public init(complete: @Sendable @escaping (CompletionChain, IDGenerator) async throws -> LLMCompletion<ERR>) {
         self.complete = complete
     }
 
     public func callAsFunction(
-        chain: CompletionChain<InputError>,
-        message: String? = nil
-    ) async throws -> CompletionChain<OutputError> {
-        try await complete(message.map { chain.appending(.message(.user($0)))} ?? chain)
+        chain: CompletionChain,
+        message: String? = nil,
+        idGenerator: IDGenerator
+    ) async throws -> LLMCompletion<ERR> {
+        try await complete(message.map { chain.appending(.user($0),idGenerator: idGenerator)} ?? chain, idGenerator)
     }
-    public func callAsFunction(system: String, messages: [Model.MessageContent]) async throws -> CompletionChain<OutputError> {
-        try await self(chain: .init([.init(system: system, messages: messages)]))
+    public func callAsFunction(
+        system: String,
+        messages: [Model.MessageContent],
+        idGenerator: IDGenerator
+    ) async throws -> LLMCompletion<ERR> {
+        try await self(chain: .init([.init(id: idGenerator.id(), system: system, messages: messages)]), idGenerator: idGenerator)
     }
 }
-public extension LLMKit where InputError == OutputError {
-    static func constant(_ message: String) -> Self {
-        .init { chain in
-            chain.appending(.message(.assistant(message, tool_calls: nil)))
+
+public extension LLMKit {
+    func mapError<NewError>(_ transform: @escaping (ERR) -> NewError ) -> LLMKit<NewError> {
+        .init { chain, idGenerator in
+            let r = try await self.complete(chain, idGenerator)
+            switch r {
+            case let .chain(c):
+                return .chain(c)
+            case let .error(e):
+                return .error(transform(e))
+            }
         }
     }
 }
+
+public extension LLMKit {
+    static func constant(_ message: String) -> Self {
+        .init { chain, idGenerator in
+            .chain(chain.appending(.assistant(message, tool_calls: nil), idGenerator: idGenerator))
+        }
+    }
+}
+
+public extension LLMKit {
+    static func infering(_ infering: Infering<(ChatLog, IDGenerator), ChatLog, ERR>) -> Self {
+        .init { chain, idGenerator in
+            let r = try await infering.infer((chain.output, idGenerator))
+            switch r {
+            case let .error(e):
+                return .error(e)
+            case let .infered(newChatLog):
+                return .chain(chain.appending(newChatLog))
+            }
+        }
+    }
+}
+
 
 // echo
 extension Model.MessageContent {
@@ -40,11 +81,11 @@ extension Model.MessageContent {
     }
 }
 
-public extension LLMKit where InputError == OutputError {
+public extension LLMKit {
     static var echo: Self {
-        .init { chain in
+        .init { chain, idGenerator in
             let echoResponse: Model.MessageContent = .assistant(chain.output.lastMessage.content, tool_calls: nil)
-            return chain.appending(.message(echoResponse))
+            return .chain(chain.appending(echoResponse, idGenerator: idGenerator))
         }
     }
 }
@@ -52,9 +93,9 @@ public extension LLMKit where InputError == OutputError {
 // debug
 public extension LLMKit {
     var debug: Self {
-        .init { chatLog in
-            print(chatLog)
-            return try await complete(chatLog)
+        .init { chain, idGenerator in
+            print(chain)
+            return try await complete(chain, idGenerator)
         }
     }
 }
@@ -76,34 +117,34 @@ public extension LLMKit {
         }
     }
     func tracked<T>(_ tracker: Tracker<T> ) -> Self {
-        .init { chatLog in
+        .init { chain, idGenerator in
             await tracker.track()
-            return try await complete(chatLog)
+            return try await complete(chain, idGenerator)
         }
     }
 }
 
-public extension LLMKit where InputError == OutputError {
+public extension LLMKit {
     enum ModifierMode {
         case replace
         case append
     }
     static func systemPromptModifier(_ systemPromptModifier: @escaping (String) -> String, mode: ModifierMode = .replace) -> Self {
-        .init { chain in
+        .init { chain, idGenerator in
             let chatLog = chain.output
             let newSystemPrompt = systemPromptModifier(chatLog.system)
             switch mode {
             case .replace:
-                return chain.replacingOutput(.init(system: newSystemPrompt, messages: chatLog.messages))
+                return .chain(chain.replacingOutput(.init(id: chatLog.id, system: newSystemPrompt, messages: chatLog.messages)))
             case .append:
-                return chain.appending(.init(system: newSystemPrompt, messages: chatLog.messages))
+                return .chain(chain.appending(.init(id: idGenerator.id(),system: newSystemPrompt, messages: chatLog.messages)))
             }
         }
     }
     func withSystemPromptModifier(_ systemPromptModifier: @escaping (String) -> String, mode: ModifierMode = .replace) -> Self {
-        .systemPromptModifier(systemPromptModifier, mode: mode).pipe(to: self)
+        .systemPromptModifier(systemPromptModifier, mode: mode).pipe(to: self).map(\.first)
     }
     func withModifier(_ modifier: Self) -> Self {
-        modifier.pipe(to: self)
+        modifier.pipe(to: self).map(\.first)
     }
 }

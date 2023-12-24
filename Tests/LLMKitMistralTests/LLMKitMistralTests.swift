@@ -6,30 +6,31 @@
 //
 
 import XCTest
+@testable import LLMKitMistral
+import LLMKit
 
 final class LLMKitMistralTests: XCTestCase {
-
-    override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
+    
+    func test_mistral_completionCall_wrongKey() async throws {
+        let llm = LLMKit<MistralClientErrorResponse>.mistral(apiKey: "wrongAPITest", model: .mistral_tiny)
+            .fallback(to: .constant("An error occured")) { completion in
+                switch completion {
+                case .chain(let completionChain):
+                    return false
+                case .error(let eRR):
+                    return true
+                }
+            }
+        let result = try await llm.debug(system: "this is an integration test", messages: [.user("hello")], idGenerator: .init(id: { UUID().uuidString}))
+        dump(result)
     }
-
-    override func tearDownWithError() throws {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
+    func test_OpenAI_completionCall() async throws {
+        let llm: LLMKit = LLMKit<MistralClientErrorResponse>.mistral(
+            apiKey: Keys.mistral,
+            model: .mistral_tiny
+        )
+        let result = try await llm.debug(system: "you speak and answer in french, when asked something in english, you only answer in french", messages: [.user("hello")], idGenerator: .init(id: { UUID().uuidString}))
+        dump(result)
     }
-
-    func testExample() throws {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-        // Any test you write for XCTest can be annotated as throws and async.
-        // Mark your test throws to produce an unexpected failure when your test encounters an uncaught error.
-        // Mark your test async to allow awaiting for asynchronous code to complete. Check the results with assertions afterwards.
-    }
-
-    func testPerformanceExample() throws {
-        // This is an example of a performance test case.
-        self.measure {
-            // Put the code you want to measure the time of here.
-        }
-    }
-
+    
 }

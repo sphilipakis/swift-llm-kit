@@ -6,3 +6,11 @@
 //
 
 import Foundation
+
+struct Compressing<P> {
+    let compress: (P, ChatLog) async throws -> ChatLog
+    init(compress: @Sendable @escaping (P, ChatLog) -> ChatLog) {
+        self.compress = compress
+    }
+}
+

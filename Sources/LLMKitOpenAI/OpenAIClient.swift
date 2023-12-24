@@ -9,38 +9,38 @@ import Foundation
 import LLMKit
 
 public struct OpenAIClientErrorResponse: Decodable {
-    let error: Body
+    public let error: Body
     public struct Body: Decodable {
-        let message: String
-        let type: String
-        let param: String?
-        let code: String?
+        public let message: String
+        public let type: String
+        public let param: String?
+        public let code: String?
     }
 }
-
-public enum OpenAIClientResponse<P: Decodable, ERR: Decodable>: Decodable {
-    case error(ERR)
-    case payload(P)
-    enum CodingKeys: CodingKey {
-        case error
-        case payload
-    }
-    
-    public init(from decoder: Decoder) throws {
-        let container = try decoder.singleValueContainer()
-        do {
-            let err = try container.decode(ERR.self)
-            self = .error(err)
-        } catch {
-            do {
-                let p = try container.decode(P.self)
-                self = .payload(p)
-            } catch {
-                throw DecodingError.typeMismatch(OpenAIClientResponse<P, ERR>.self, DecodingError.Context.init(codingPath: container.codingPath,debugDescription: "Wrong type", underlyingError: nil))
-            }
-        }
-    }
-}
+//
+//public enum OpenAIClientResponse<P: Decodable, ERR: Decodable>: Decodable {
+//    case error(ERR)
+//    case payload(P)
+//    enum CodingKeys: CodingKey {
+//        case error
+//        case payload
+//    }
+//    
+//    public init(from decoder: Decoder) throws {
+//        let container = try decoder.singleValueContainer()
+//        do {
+//            let err = try container.decode(ERR.self)
+//            self = .error(err)
+//        } catch {
+//            do {
+//                let p = try container.decode(P.self)
+//                self = .payload(p)
+//            } catch {
+//                throw DecodingError.typeMismatch(OpenAIClientResponse<P, ERR>.self, DecodingError.Context.init(codingPath: container.codingPath,debugDescription: "Wrong type", underlyingError: nil))
+//            }
+//        }
+//    }
+//}
 
 extension Model {
     public typealias Bias = Int // -100 .. 100
@@ -190,9 +190,9 @@ public struct OpenAIClient {
         )
     }
     
-    public func runRequest<P: Decodable, ERR: Decodable>(_ req: URLRequest, session: URLSession? = nil) async throws -> OpenAIClientResponse<P, ERR> {
+    public func runRequest<P: Decodable, ERR: Decodable>(_ req: URLRequest, session: URLSession? = nil) async throws -> ClientResponse<P, ERR> {
         let result = try await (session ?? self.session).data(for: req)
         let decoder = JSONDecoder()
-        return try decoder.decode(OpenAIClientResponse<P, ERR>.self, from: result.0)
+        return try decoder.decode(ClientResponse<P, ERR>.self, from: result.0)
     }
 }

@@ -13,14 +13,15 @@ final class LLMKitOpenAITests: XCTestCase {
     func test_OpenAI_completionCall_wrongKey() async throws {
         let llm = LLMKit
             .openAI(apiKey: "wrongAPITest", model: .gpt3_5Turbo)
-            .fallback(to: .constant("An error occured")) { chain in
-                if case .error(_) = chain.output.lastItem {
-                    return true
-                } else {
+            .fallback(to: .constant("An error occured")) { completion in
+                switch completion {
+                case .chain(let completionChain):
                     return false
+                case .error(let eRR):
+                    return true
                 }
             }
-        let result = try await llm.debug(system: "this is an integration test", messages: [.user("hello")])
+        let result = try await llm.debug(system: "this is an integration test", messages: [.user("hello")], idGenerator: .init(id: { UUID().uuidString}))
         dump(result)
     }
     func test_OpenAI_completionCall() async throws {
@@ -28,7 +29,7 @@ final class LLMKitOpenAITests: XCTestCase {
             apiKey: Keys.openAI,
             model: .gpt3_5Turbo
         )
-        let result = try await llm.debug(system: "you speak and answer in french", messages: [.user("hello")])
+        let result = try await llm.debug(system: "you speak and answer in french", messages: [.user("hello")], idGenerator: .init(id: { UUID().uuidString}))
         dump(result)
     }
     
@@ -56,11 +57,16 @@ final class LLMKitOpenAITests: XCTestCase {
         let result = try await tooledLLM(
             system: "you respond to greetings by greeting back. then you can engage the conversation",
             messages: [.user("hello")]
-        )
+            , idGenerator: .init(id: { UUID().uuidString}))
 
-        result.output.messages.forEach { c in
-            print(">>>>   ",c)
-            print("----------")
+        switch result {
+        case .chain(let c):
+            c.output.messages.forEach { c in
+                print(">>>>   ",c)
+                print("----------")
+            }
+        case .error(let e):
+            print("Error",e)
         }
     }
     func test_decode() async throws {
@@ -92,10 +98,15 @@ final class LLMKitOpenAITests: XCTestCase {
         let result = try await tooledLLM(
             system: "you can access the internet",
             messages: [.user("using cnn rss (don't use https, only http), tell me what's happening in the world")]
-        )
-        result.output.items.forEach { c in
-            print(">>>>   ",c)
-            print("----------")
+            , idGenerator: .init(id: { UUID().uuidString}))
+        switch result {
+        case .chain(let c):
+            c.output.messages.forEach { c in
+                print(">>>>   ",c)
+                print("----------")
+            }
+        case .error(let e):
+            print("Error",e)
         }
 
     }

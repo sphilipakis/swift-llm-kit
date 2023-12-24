@@ -16,6 +16,11 @@ let package = Package(
             name: "LLMKitOpenAI",
             targets: ["LLMKitOpenAI"]
         ),
+        .library(
+            name: "LLMKitOllama",
+            targets: ["LLMKitOllama"]
+        ),
+        .library(name: "LLMKitMistral", targets: ["LLMKitMistral"]),
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-syntax.git", from: "509.0.0" ),
@@ -35,6 +40,11 @@ let package = Package(
             ]
         ),
         .target(
+            name: "LLMKitOllama",
+            dependencies: ["LLMKit"]
+        ),
+        .testTarget(name: "LLMKitOllamaTests", dependencies: ["LLMKitOllama"]),
+        .target(
             name: "LLMKitOpenAI",
             dependencies: ["LLMKit"]
         ),
@@ -42,6 +52,8 @@ let package = Package(
             name: "LLMKitOpenAITests",
             dependencies: ["LLMKitOpenAI"]
         ),
+        .target(name: "LLMKitMistral", dependencies: ["LLMKit"]),
+        .testTarget(name: "LLMKitMistralTests", dependencies: ["LLMKitMistral"]),
         .macro(
             name: "LLMToolMacros",
             dependencies: [
