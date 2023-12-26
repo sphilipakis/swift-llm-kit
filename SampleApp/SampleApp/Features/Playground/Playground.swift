@@ -36,7 +36,8 @@ public struct Presets {
 @Reducer
 struct Log {
     @Dependency(\.uuid) var uuid
-    @Dependency(\.inferer) var inferer
+    @Dependency(\.streamInferer) var streamInferer
+//    @Dependency(\.inferer) var inferer
     @Dependency(\.idGenerator) var idGenerator
 
     enum Status {
@@ -46,18 +47,23 @@ struct Log {
     @ObservableState
     struct State: Identifiable {
         let id: String
+        var trashed: Bool = false
         var bubbles: IdentifiedArrayOf<ChatBubble.State>
+        var inferedBubble: ChatBubble.State?
         var status: Status = .ready
     }
     enum Action {
         case bubble(IdentifiedActionOf<ChatBubble>)
-        case receive(Model.MessageContent)
+        case inferedBubble(ChatBubble.Action)
+        case receive(Model.MessageContent, finished: Bool)
         case send
         case addButtonClicked
     }
     var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
+            case .inferedBubble:
+                return .none
             case .addButtonClicked:
                 state.bubbles.append(.init(id: uuid().uuidString, message: "", source: .user, editMode: true))
                 return .none
@@ -74,11 +80,17 @@ struct Log {
                 return .none
             case .bubble:
                 return .none
-            case .receive(let m):
-                state.status = .ready
+            case .receive(let m, finished: let finished):
+                state.status = finished ? .ready : .infering
                 switch m {
                 case let .assistant(.some(s), tool_calls: _):
-                    state.bubbles.append(.init(id: uuid().uuidString, message: s, source: .assistant))
+                    if !finished {
+                        state.inferedBubble = .init(id: uuid().uuidString, message: s, source: .assistant)
+                        return .none
+                    } else {
+                        state.inferedBubble = nil
+                        state.bubbles.append(.init(id: uuid().uuidString, message: s, source: .assistant))
+                    }
                 case let .user(.some(s)):
                     state.bubbles.append(.init(id: uuid().uuidString, message: s, source: .user))
                 default:
@@ -98,20 +110,23 @@ struct Log {
                 }
                 let chatLog = ChatLog(id: uuid().uuidString, system: "", messages: messages)
                 return .run { send in
-                    let r = try await inferer.infer((chatLog, idGenerator))
-                    
-                    switch r {
-                    case let .error(error):
-                        print(error)
-                    case let .infered(v):
-                        if let v {
-                            await send(.receive(v))
+                    for try await r in try await streamInferer.infer((chatLog, idGenerator)) {
+                        switch r {
+                        case let .error(error):
+                            print(error)
+                        case let .infered(v, finished: finished):
+                            if let v {
+                                await send(.receive(v, finished: finished))
+                            }
                         }
                     }
                 }
             }
         }
         .forEach(\.bubbles, action: \.bubble) {
+            ChatBubble()
+        }
+        .ifLet(\.inferedBubble, action: \.inferedBubble) {
             ChatBubble()
         }
     }
@@ -132,7 +147,7 @@ extension IDGenerator: TestDependencyKey {
 extension DependencyValues {
     var idGenerator: IDGenerator {
         get { self[IDGenerator.self]}
-        set { self[IDGenerator.self]}
+        set { self[IDGenerator.self] = newValue}
     }
 }
 
@@ -157,7 +172,29 @@ extension DependencyValues {
     }
 }
 
-
+extension StreamInfering<(ChatLog, IDGenerator), Model.MessageContent?, ChatErrorResponse>: TestDependencyKey {
+    public static var testValue: StreamInfering<(ChatLog, IDGenerator), Model.MessageContent?, ChatErrorResponse> {
+        .init(infer: XCTUnimplemented("\(Self.self).infer"))
+    }
+    public static var previewValue: StreamInfering<(ChatLog, IDGenerator), Model.MessageContent?, ChatErrorResponse> {
+        StreamInfering<(ChatLog, IDGenerator), Model.MessageContent?, OllamaClientErrorResponse>.ollama().mapError { r in
+                ChatErrorResponse(message: r.error)
+        }
+//        .inference(
+//            Infering<(ChatLog, IDGenerator), Model.MessageContent?, ChatErrorResponse>.previewValue
+//        )
+    }
+}
+extension DependencyValues {
+    var streamInferer: StreamInfering<(ChatLog, IDGenerator), Model.MessageContent?, ChatErrorResponse> {
+        get {
+            self[StreamInfering<(ChatLog, IDGenerator), Model.MessageContent?, ChatErrorResponse>.self]
+        }
+        set {
+            self[StreamInfering<(ChatLog, IDGenerator), Model.MessageContent?, ChatErrorResponse>.self] = newValue
+        }
+    }
+}
 
 @Reducer
 struct Playground {
@@ -279,6 +316,10 @@ struct LogView: View {
                 ChatBubbleView(store: store)
                     .padding(.horizontal)
             }
+            IfLetStore(store.scope(state: \.inferedBubble, action: \.inferedBubble)) { store in
+                ChatBubbleView(store: store)
+                    .padding(.horizontal)
+            }
             switch store.status {
             case .infering:
                 HStack {
@@ -364,7 +405,6 @@ public struct PlaygroundView: View {
                 }
                 .frame(width: 220)
             }
-            .padding(.vertical)
             Divider()
             HStack {
                 switch store.status  {

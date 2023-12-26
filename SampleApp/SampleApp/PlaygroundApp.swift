@@ -25,7 +25,8 @@ struct PlaygroundApp: App {
         )) {
             AppReducer()
                 .dependency(\.persistenceClient, .files)
-                .dependency(\.inferer, .previewValue)
+//                .dependency(\.inferer, .previewValue)
+                .dependency(\.streamInferer, .previewValue)
                 .dependency(\.inputClient, .init(
                     prompt: { prompt in
                         await MainActor.run {

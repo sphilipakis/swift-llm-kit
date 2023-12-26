@@ -42,7 +42,7 @@ Given this context information and not prior knowledge, summarize it in one para
             for p in 0..<pdf.pageCount {
                 if let page = pdf.page(at: p), let pageContent = page.string {
                     let summary = try await llm.infer(.init(id: UUID().uuidString, system: "", messages: [.user(template.replacingOccurrences(of: "{content}", with: pageContent))]))
-                    if case let .infered(chatLog) = summary, let answer = chatLog.lastMessage.body {
+                    if case let .infered(chatLog, finished: _) = summary, let answer = chatLog.lastMessage.body {
                         pageSummaries.append(.init(text: "Page \(p) summary: "+answer))
                         print("Summary: page \(p)---")
                         print(answer)

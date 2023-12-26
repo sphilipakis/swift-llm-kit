@@ -57,7 +57,7 @@ public extension LLMKit {
             switch r {
             case let .error(e):
                 return .error(e)
-            case let .infered(newChatLog):
+            case let .infered(newChatLog, finished: finished):
                 return .chain(chain.appending(newChatLog))
             }
         }

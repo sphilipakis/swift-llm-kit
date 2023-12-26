@@ -82,7 +82,7 @@ public extension Infering where Input == (ChatLog, IDGenerator), T == Model.Mess
                 let messageContent: Model.MessageContent? = p.choices.first.map {
                     Model.MessageContent.assistant($0.message.content, tool_calls: $0.message.toolCalls)
                 }
-                return .infered(messageContent)
+                return .infered(messageContent, finished: true)
             }
         }
     }

@@ -57,30 +57,38 @@ extension PersistenceClient {
 
                 var indexContent = ""
                 for log in state.chats.logs {
-                    indexContent += "\(log.id)\n"
                     let fileName = "log_\(log.id).md"
                     let fileURL = folder.appendingPathComponent(fileName, conformingTo: .plainText)
-                    let template: String = """
-    ## CHUNK:{source}:{id}
-    {content}
-    
-    
-    """
-                    let markdowns = log.bubbles.reduce("") { partialResult, bubble in
-                        let id = bubble.id
-                        let source = switch bubble.source {
-                        case .user:
-                            "USER"
-                        case .assistant:
-                            "ASSISTANT"
+                    if log.trashed {
+                        try? fileManager.removeItem(at: fileURL)
+                    } else {
+                        indexContent += "\(log.id)\n"
+                        let template: String = """
+        ## CHUNK:{source}:{id}
+        {content}
+        
+        
+        """
+                        let markdowns = log.bubbles.reduce("") { partialResult, bubble in
+                            let id = bubble.id
+                            let source = switch bubble.source {
+                            case .user:
+                                "USER"
+                            case .assistant:
+                                "ASSISTANT"
+                            }
+                            let content = bubble.message
+                            
+                            return partialResult + template.replacingOccurrences(of: "{source}", with:source).replacingOccurrences(of: "{id}", with: id).replacingOccurrences(of: "{content}", with: content)
                         }
-                        let content = bubble.message
-                        
-                        return partialResult + template.replacingOccurrences(of: "{source}", with:source).replacingOccurrences(of: "{id}", with: id).replacingOccurrences(of: "{content}", with: content)
+                        do {
+                            try markdowns.write(to: fileURL, atomically: true, encoding: .utf8)
+                        } catch {
+                            print("[PERSISTENCE] error", error)
+                        }
                     }
                     do {
                         try indexContent.write(to: indexURL, atomically: true, encoding: .utf8)
-                        try markdowns.write(to: fileURL, atomically: true, encoding: .utf8)
                     } catch {
                         print("[PERSISTENCE] error", error)
                     }

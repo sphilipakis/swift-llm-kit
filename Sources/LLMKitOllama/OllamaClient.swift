@@ -30,7 +30,7 @@ public struct OllamaClientResponse: Decodable {
     
     public let model: String
     public let message: Message
-//    public let done: Bool
+    public let done: Bool
     public struct Message: Decodable {
         public let role: Model.Role
         public let content: String

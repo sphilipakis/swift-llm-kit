@@ -8,6 +8,99 @@
 import Foundation
 import LLMKit
 
+//struct OllamaCompletionChunk: Decodable {
+//    let model: String?
+//    let message: Model.MessageContent?
+//    let done: Bool?
+//}
+
+
+public extension StreamInfering where Input == (ChatLog, IDGenerator), T == Model.MessageContent?, ERR == OllamaClientErrorResponse {
+    static func ollama(
+        url: URL = URL(string:"http://localhost:11434")!,
+        model: String = "mistral:latest"
+    ) -> Self {
+        let streamingSessionsActor = StreamingSessionsActor()
+        
+        return .init { (chatLog, idGenerator) in
+            let client = OllamaClient(url: url)
+            let payload: Model.OllamaCompletionRequestPayload = .init(messages: [.system(chatLog.system)] + chatLog.messages, model: model, stream: true)
+            let request: URLRequest = try client.createChatCompletionRequest(payload)
+            let streamingSession = ChatStreamingSession<OllamaClientResponse, ERR>(urlRequest: request)
+            await streamingSessionsActor.appendSession(streamingSession)
+            var message: String = ""
+            return .init { continuation in
+                streamingSession.onProcessingError = { (session, error) in
+                    print("[StreamInfering] streamingSession.onProcessingError", error)
+                    continuation.finish(throwing: error)
+                    Task {
+                        await streamingSessionsActor.removeSession(session)
+                    }
+                }
+                streamingSession.onReceiveContent = { (session, resultType) in
+                    print("[StreamInfering] streamingSession,onReceiveContent", resultType)
+                    message += resultType.message.content
+                    continuation.yield(.infered(.assistant(message, tool_calls: nil), finished: resultType.done))
+                }
+                streamingSession.onComplete = { (session, error) in
+                    print("[ChatDriver] streamingSession.onComplete", error)
+                    continuation.finish(throwing: error)
+                    Task {
+                        await streamingSessionsActor.removeSession(session)
+                    }
+                }
+                streamingSession.resume()
+            }//.eraseToThrowingStream()
+            
+            
+//            return AsyncThrowingStream<Inference<, Error> { continuation in
+//                streamingSession.onProcessingError = { (session,error) in
+//                    print("[ChatDriver] streamingSession.onProcessingError", error)
+//                    continuation.finish(throwing: error)
+//                    Task {
+//                        await streamingSessionsActor.removeSession(session)
+//                    }
+//                }
+//                streamingSession.onReceiveContent = { (session, resultType) in
+//                    print("[ChatDriver] streamingSession.onReceiveContent", resultType)
+//                    tokenCount += 1
+//                    if let choice = resultType.choices.first {
+//                        let toolCall: Model.ToolCall? = choice.delta.toolCalls?.first
+//                        let delta: ChatStreamDelta = .init(
+//                            content: choice.delta.content,
+//                            role: .assistant,
+//                            toolCall: toolCall
+//                        )
+//                        continuation.yield(
+//                            .delta(
+//                                delta
+//                            )
+//                        )
+//                    }
+//                }
+//                streamingSession.onComplete = { (session, error) in
+//                    print("[ChatDriver] streamingSession.onComplete", error)
+//                    continuation.finish(throwing: error)
+//                    Task {
+//                        await streamingSessionsActor.removeSession(session)
+//                    }
+//                }
+//                streamingSession.resume()
+//            }.eraseToThrowingStream()
+            
+//            let response: ClientResponse<OllamaClientResponse, OllamaClientErrorResponse> = try await client.runRequest(request)
+//            switch response {
+//            case .error(let openAIClientErrorResponse):
+//                print("[error] ", openAIClientErrorResponse.error)
+//                return .error(openAIClientErrorResponse)
+//            case .payload(let p):
+//                let messageContent: Model.MessageContent? = Model.MessageContent.assistant(p.message.content, tool_calls: nil)
+//                return  .infered(messageContent)
+//            }
+        }
+    }
+}
+
 
 public extension Infering where Input == ChatLog, T == Model.MessageContent?, ERR == OllamaClientErrorResponse {
     static func ollama(
@@ -34,7 +127,7 @@ public extension Infering where Input == (ChatLog, IDGenerator), T == Model.Mess
                 return .error(openAIClientErrorResponse)
             case .payload(let p):
                 let messageContent: Model.MessageContent? = Model.MessageContent.assistant(p.message.content, tool_calls: nil)
-                return  .infered(messageContent)
+                return  .infered(messageContent, finished: true)
             }
         }
     }

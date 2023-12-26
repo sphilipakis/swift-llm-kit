@@ -25,10 +25,14 @@ struct Chats {
         case send
         case selectLog(String)
         case addLog
+        case deleteLog(String)
     }
     var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
+            case .deleteLog(let id):
+                state.logs[id:id]?.trashed = true
+                return .none
             case .addLog:
                 state.logs.append(
                     .init(id: uuid().uuidString, bubbles: .init(uniqueElements: [.init(id: uuid().uuidString,message: "", source: .user, editMode: true)]))
@@ -62,22 +66,37 @@ struct Chats {
 struct ChatsView: View {
 //    @Bindable
     var store: StoreOf<Chats>
+    @State var hoverLogID: [String: Bool] = [:]
     var body: some View {
-        HStack(alignment: .top){
+        HStack(alignment: .top, spacing: 0){
             VStack(alignment: .leading) {
                 List {
                     ForEachStore(store.scope(state: \.logs, action: \.logs)) { logStore in
-                        Button(action: { store.send(.selectLog(logStore.id))}) {
-                            VStack(alignment: .leading) {
-                                Text(logStore.bubbles.first?.message ?? "Log")
-                                    .lineLimit(1)
-                                Text(logStore.id)
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
+                        if !logStore.trashed {
+                            Button(action: { store.send(.selectLog(logStore.id))}) {
+                                HStack {
+                                    VStack(alignment: .leading) {
+                                        Text(logStore.bubbles.first?.message ?? "Log")
+                                            .lineLimit(1)
+                                        Text(logStore.id)
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
 
+                                    }
+                                    Spacer()
+                                    if hoverLogID[logStore.id] == true {
+                                        Button(action: { store.send(.deleteLog(logStore.id), animation: .default)}) {
+                                            Image(systemName: "xmark")
+                                        }
+                                        .buttonStyle(.plain)
+                                    }
+                                }
                             }
+                            .buttonStyle(.plain)
+                            .onHover(perform: { hovering in
+                                hoverLogID[logStore.id] = hovering
+                            })
                         }
-                        .buttonStyle(.plain)
                     }
                 }
                 Spacer()
@@ -116,7 +135,7 @@ struct ChatsView: View {
                     }
                 }
             }
-            .padding(.horizontal)
+            .padding()
         }
         .frame(maxWidth: .infinity)
         .task {
