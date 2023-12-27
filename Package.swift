@@ -6,7 +6,7 @@ import CompilerPluginSupport
 
 let package = Package(
     name: "swift-llm-kit",
-    platforms: [.iOS(.v15),.macOS(.v14)],
+    platforms: [.iOS(.v15),.macOS(.v10_15)],
     products: [
         // Products define the executables and libraries a package produces, making them visible to other packages.
         .library(

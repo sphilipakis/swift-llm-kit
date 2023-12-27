@@ -69,7 +69,7 @@ public struct OllamaClient {
         return req
     }
     func createRequest(method: String = "GET", path: String = "", beta: Bool = false) -> URLRequest {
-        let url = self.url.appending(path: path)
+        let url = URL(string: self.url.absoluteString.appending(path))!//.appending(path: path)
         var req = URLRequest(url: url)
         req.httpMethod = method
         req.addValue("application/json", forHTTPHeaderField: "Content-Type")
