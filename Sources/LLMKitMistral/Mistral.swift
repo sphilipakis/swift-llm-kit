@@ -18,29 +18,46 @@ extension ChatLog  {
         [.system(self.system)] + messages
     }
 }
-public extension Infering where Input == ChatLog, T == Model.MessageContent?, ERR == MistralClientErrorResponse {
-    static func mistral(
-        apiKey: String,
+
+public struct MistralInfererParameters: Codable {
+    public let model: String// = .mistral_tiny,
+    public let maxTokens: Int?// = nil,
+    public let n: Int?// = nil,
+    public let random_seed: Int?// = nil,
+    public let stream: Bool?// = false,
+    public let temperature: Float?// = nil,
+    public let top_p: Float?// = nil,
+    public let safe_mode: Bool?// = nil,
+    public init(
         model: String = .mistral_tiny,
         maxTokens: Int? = nil,
         n: Int? = nil,
         random_seed: Int? = nil,
-        stream: Bool? = false,
+        stream: Bool? = nil,
         temperature: Float? = nil,
         top_p: Float? = nil,
-        safe_mode: Bool? = nil,
+        safe_mode: Bool? = nil
+    ) {
+        self.model = model
+        self.maxTokens = maxTokens
+        self.n = n
+        self.random_seed = random_seed
+        self.stream = stream
+        self.temperature = temperature
+        self.top_p = top_p
+        self.safe_mode = safe_mode
+    }
+}
+
+public extension Infering where Input == ChatLog, T == Model.MessageContent?, ERR == MistralClientErrorResponse {
+    static func mistral(
+        apiKey: String,
+        parameters: MistralInfererParameters,
         idGenerator: IDGenerator
     ) -> Self {
         Infering<(ChatLog, IDGenerator), T, ERR>.mistral(
             apiKey: apiKey,
-            model: model,
-            maxTokens: maxTokens,
-            n: n,
-            random_seed: random_seed,
-            stream: stream,
-            temperature: temperature,
-            top_p: top_p,
-            safe_mode: safe_mode
+            parameters: parameters
         )
         .map(idGenerator)
     }
@@ -48,27 +65,22 @@ public extension Infering where Input == ChatLog, T == Model.MessageContent?, ER
 public extension Infering where Input == (ChatLog, IDGenerator), T == Model.MessageContent?, ERR == MistralClientErrorResponse {
     static func mistral(
         apiKey: String,
-        model: String = .mistral_tiny,
-        maxTokens: Int? = nil,
-        n: Int? = nil,
-        random_seed: Int? = nil,
-        stream: Bool? = false,
-        temperature: Float? = nil,
-        top_p: Float? = nil,
-        safe_mode: Bool? = nil
+        parameters: MistralInfererParameters
     ) -> Self {
-        .init { chatLog, idGenerator in
+        let inferer: Inferer? = try? .init(id: "mistral", parameters: parameters)
+        return .init { chatLog, idGenerator in
+            
             let client = MistralClient(apiKey: apiKey)
             let messages: [Model.MessageContent] = chatLog.mistralMessages()
             let payload: Model.ChatCompletionRequestPayload = .init(
-                model: model,
+                model: parameters.model,
                 messages: messages,
-                temperature: temperature,
-                top_p: top_p,
-                maxTokens: maxTokens,
-                stream: stream,
-                safe_mode: safe_mode,
-                random_seed: random_seed
+                temperature: parameters.temperature,
+                top_p: parameters.top_p,
+                maxTokens: parameters.maxTokens,
+                stream: parameters.stream,
+                safe_mode: parameters.safe_mode,
+                random_seed: parameters.random_seed
             )
             let request : URLRequest = try client.createChatCompletionRequest(
                 payload
@@ -77,12 +89,12 @@ public extension Infering where Input == (ChatLog, IDGenerator), T == Model.Mess
             switch response {
             case .error(let openAIClientErrorResponse):
                 print("[error] ", openAIClientErrorResponse.error)
-                return .error(openAIClientErrorResponse)
+                return Inference(result: .error(openAIClientErrorResponse), inferer: inferer)
             case .payload(let p):
                 let messageContent: Model.MessageContent? = p.choices.first.map {
                     Model.MessageContent.assistant($0.message.content, tool_calls: $0.message.toolCalls)
                 }
-                return .infered(messageContent, finished: true)
+                return Inference(result: .infered(messageContent, finished: true), inferer: inferer)
             }
         }
     }
@@ -90,50 +102,23 @@ public extension Infering where Input == (ChatLog, IDGenerator), T == Model.Mess
 public extension Infering where Input == ChatLog, T == ChatLog, ERR == MistralClientErrorResponse {
     static func mistral(
         apiKey: String,
-        model: String = .mistral_tiny,
-        maxTokens: Int? = nil,
-        n: Int? = nil,
-        random_seed: Int? = nil,
-        stream: Bool? = false,
-        temperature: Float? = nil,
-        top_p: Float? = nil,
-        safe_mode: Bool? = nil,
+        parameters: MistralInfererParameters,
         idGenerator: IDGenerator
     ) -> Self {
         Infering<(ChatLog, IDGenerator), ChatLog, MistralClientErrorResponse>.mistral(
             apiKey: apiKey,
-            model: model,
-            maxTokens: maxTokens,
-            n: n,
-            random_seed: random_seed,
-            stream: stream,
-            temperature: temperature,
-            top_p: top_p,
-            safe_mode: safe_mode
+            parameters: parameters
         ).map(idGenerator)
     }
 }
 public extension Infering where Input == (ChatLog, IDGenerator), T == ChatLog, ERR == MistralClientErrorResponse {
     static func mistral(
         apiKey: String,
-        model: String = .mistral_tiny,
-        maxTokens: Int? = nil,
-        n: Int? = nil,
-        random_seed: Int? = nil,
-        stream: Bool? = false,
-        temperature: Float? = nil,
-        top_p: Float? = nil,
-        safe_mode: Bool? = nil
+        parameters: MistralInfererParameters
     ) -> Self {
         Infering<Input, Model.MessageContent?, ERR>.mistral(
             apiKey: apiKey,
-            model: model,
-            maxTokens: maxTokens,
-            n: n,
-            stream: stream,
-            temperature: temperature,
-            top_p: top_p,
-            safe_mode: safe_mode
+            parameters: parameters
         ).accumulating { (input, message) in
             let (chatLog, idGenerator) = input
             return message.map {
@@ -146,26 +131,12 @@ public extension Infering where Input == (ChatLog, IDGenerator), T == ChatLog, E
 public extension LLMKit where ERR == MistralClientErrorResponse {
     static func mistral(
         apiKey: String,
-        model: String = .mistral_tiny,
-        maxTokens: Int? = nil,
-        n: Int? = nil,
-        random_seed: Int? = nil,
-        stream: Bool? = false,
-        temperature: Float? = nil,
-        top_p: Float? = nil,
-        safe_mode: Bool? = nil
+        parameters: MistralInfererParameters
     ) -> Self {
         .infering(
             Infering.mistral(
                 apiKey: apiKey,
-                model: model,
-                maxTokens: maxTokens,
-                n: n,
-                random_seed: random_seed,
-                stream: stream,
-                temperature: temperature,
-                top_p: top_p,
-                safe_mode: safe_mode
+                parameters: parameters
             )
         )
     }

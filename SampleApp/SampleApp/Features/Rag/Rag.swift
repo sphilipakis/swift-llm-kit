@@ -31,7 +31,7 @@ struct StorageClient {
 
 let _previewStorage: MemoryDocStorage = {
     .init(documents: [], extractor: Extractor.pdf(llm: Infering<ChatLog,  ChatLog, OllamaClientErrorResponse>.ollama(
-        model: "mistral:latest",
+        parameters: .init(model: "mistral:latest"),
         idGenerator: .init {
             UUID().uuidString
         }
@@ -103,7 +103,7 @@ extension RagClient: TestDependencyKey {
     static var previewValue: RagClient {
         let rag: RagEngine = .init(
             storage: _previewStorage,
-            llm: LLMKit.ollama(url: URL(string: "http://localhost:11434")!, model: "mistral:latest").mapError({ error in
+            llm: LLMKit.ollama(parameters: .init()).mapError({ error in
                 error.error
             })
         )

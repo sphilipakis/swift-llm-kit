@@ -55,7 +55,8 @@ struct Log {
     enum Action {
         case bubble(IdentifiedActionOf<ChatBubble>)
         case inferedBubble(ChatBubble.Action)
-        case receive(Model.MessageContent, finished: Bool)
+//        case receive(Model.MessageContent, finished: Bool)
+        case receive(Model.MessageContent, finished: Bool, inferer: Inferer?)
         case send
         case addButtonClicked
     }
@@ -80,19 +81,20 @@ struct Log {
                 return .none
             case .bubble:
                 return .none
-            case .receive(let m, finished: let finished):
+            case .receive(let m, finished: let finished, inferer: let inferer):
+                print("[Inferer]", inferer)
                 state.status = finished ? .ready : .infering
                 switch m {
                 case let .assistant(.some(s), tool_calls: _):
                     if !finished {
-                        state.inferedBubble = .init(id: uuid().uuidString, message: s, source: .assistant)
+                        state.inferedBubble = .init(id: uuid().uuidString, message: s, source: .assistant, inferer: inferer)
                         return .none
                     } else {
                         state.inferedBubble = nil
-                        state.bubbles.append(.init(id: uuid().uuidString, message: s, source: .assistant))
+                        state.bubbles.append(.init(id: uuid().uuidString, message: s, source: .assistant, inferer: inferer))
                     }
                 case let .user(.some(s)):
-                    state.bubbles.append(.init(id: uuid().uuidString, message: s, source: .user))
+                    state.bubbles.append(.init(id: uuid().uuidString, message: s, source: .user, inferer: inferer))
                 default:
                     break
                 }
@@ -111,12 +113,12 @@ struct Log {
                 let chatLog = ChatLog(id: uuid().uuidString, system: "", messages: messages)
                 return .run { send in
                     for try await r in try await streamInferer.infer((chatLog, idGenerator)) {
-                        switch r {
+                        switch r.result {
                         case let .error(error):
                             print(error)
                         case let .infered(v, finished: finished):
                             if let v {
-                                await send(.receive(v, finished: finished))
+                                await send(.receive(v, finished: finished, inferer: r.inferer))
                             }
                         }
                     }
@@ -156,7 +158,7 @@ extension Infering<(ChatLog, IDGenerator), Model.MessageContent?, ChatErrorRespo
         .init(infer: XCTUnimplemented("\(Self.self).infer"))
     }
     public static var previewValue: Infering<(ChatLog, IDGenerator), Optional<Model.MessageContent>, ChatErrorResponse> {
-        Infering<(ChatLog, IDGenerator), Model.MessageContent?, OllamaClientErrorResponse>.ollama().mapError { err in
+        Infering<(ChatLog, IDGenerator), Model.MessageContent?, OllamaClientErrorResponse>.ollama(parameters: .init()).mapError { err in
             ChatErrorResponse(message: err.error)
         }
     }
@@ -177,7 +179,7 @@ extension StreamInfering<(ChatLog, IDGenerator), Model.MessageContent?, ChatErro
         .init(infer: XCTUnimplemented("\(Self.self).infer"))
     }
     public static var previewValue: StreamInfering<(ChatLog, IDGenerator), Model.MessageContent?, ChatErrorResponse> {
-        StreamInfering<(ChatLog, IDGenerator), Model.MessageContent?, OllamaClientErrorResponse>.ollama().mapError { r in
+        StreamInfering<(ChatLog, IDGenerator), Model.MessageContent?, OllamaClientErrorResponse>.ollama(parameters: .init()).mapError { r in
                 ChatErrorResponse(message: r.error)
         }
 //        .inference(
@@ -311,7 +313,7 @@ public struct PresetsView: View {
 struct LogView: View {
     let store: StoreOf<Log>
     var body: some View {
-        VStack {
+        LazyVStack {
             ForEachStore(store.scope(state: \.bubbles, action: \.bubble)) { store in
                 ChatBubbleView(store: store)
                     .padding(.horizontal)

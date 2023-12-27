@@ -40,6 +40,7 @@ struct ChatBubble {
                 "Enter an assistant message here..."
             }
         }
+        var inferer: Inferer?
     }
     enum Action {
         case deleteButtonClicked
@@ -172,6 +173,17 @@ struct ChatBubbleView: View {
             .background(RoundedRectangle(cornerRadius: 10).stroke(lineWidth: 1).foregroundColor(store.editMode ? .accentColor : .clear))
                 
          
+            if let inferer = store.inferer {
+                HStack {
+                    Image(systemName: "info.circle")
+                    Text(inferer.id)
+                    Text(inferer.parameters)
+                    Spacer()
+                }
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .padding(.leading, 10)
+            }
             Divider()
         }.onHover(perform: { hovering in
             isHovering = hovering

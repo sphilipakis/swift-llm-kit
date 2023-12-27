@@ -54,7 +54,7 @@ public extension LLMKit {
     static func infering(_ infering: Infering<(ChatLog, IDGenerator), ChatLog, ERR>) -> Self {
         .init { chain, idGenerator in
             let r = try await infering.infer((chain.output, idGenerator))
-            switch r {
+            switch r.result {
             case let .error(e):
                 return .error(e)
             case let .infered(newChatLog, finished: finished):

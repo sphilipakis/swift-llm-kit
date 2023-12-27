@@ -14,17 +14,26 @@ import LLMKit
 //    let done: Bool?
 //}
 
-
-public extension StreamInfering where Input == (ChatLog, IDGenerator), T == Model.MessageContent?, ERR == OllamaClientErrorResponse {
-    static func ollama(
+public struct OllamaInfererParameters: Codable {
+    public let url: URL
+    public let model: String
+    public init(
         url: URL = URL(string:"http://localhost:11434")!,
         model: String = "mistral:latest"
+    ) {
+        self.url = url
+        self.model = model
+    }
+}
+public extension StreamInfering where Input == (ChatLog, IDGenerator), T == Model.MessageContent?, ERR == OllamaClientErrorResponse {
+    static func ollama(
+        parameters: OllamaInfererParameters
     ) -> Self {
         let streamingSessionsActor = StreamingSessionsActor()
-        
+        let inferer: Inferer? = try? .init(id: "mistral", parameters: parameters)
         return .init { (chatLog, idGenerator) in
-            let client = OllamaClient(url: url)
-            let payload: Model.OllamaCompletionRequestPayload = .init(messages: [.system(chatLog.system)] + chatLog.messages, model: model, stream: true)
+            let client = OllamaClient(url: parameters.url)
+            let payload: Model.OllamaCompletionRequestPayload = .init(messages: [.system(chatLog.system)] + chatLog.messages, model: parameters.model, stream: true)
             let request: URLRequest = try client.createChatCompletionRequest(payload)
             let streamingSession = ChatStreamingSession<OllamaClientResponse, ERR>(urlRequest: request)
             await streamingSessionsActor.appendSession(streamingSession)
@@ -40,7 +49,7 @@ public extension StreamInfering where Input == (ChatLog, IDGenerator), T == Mode
                 streamingSession.onReceiveContent = { (session, resultType) in
                     print("[StreamInfering] streamingSession,onReceiveContent", resultType)
                     message += resultType.message.content
-                    continuation.yield(.infered(.assistant(message, tool_calls: nil), finished: resultType.done))
+                    continuation.yield(.init(result: .infered(.assistant(message, tool_calls: nil), finished: resultType.done), inferer: inferer))
                 }
                 streamingSession.onComplete = { (session, error) in
                     print("[ChatDriver] streamingSession.onComplete", error)
@@ -104,30 +113,29 @@ public extension StreamInfering where Input == (ChatLog, IDGenerator), T == Mode
 
 public extension Infering where Input == ChatLog, T == Model.MessageContent?, ERR == OllamaClientErrorResponse {
     static func ollama(
-        url: URL = URL(string: "http://localhost:11434")!,
-        model: String = "mistral:latest",
+        parameters: OllamaInfererParameters,
         idGenerator: IDGenerator
     ) -> Self {
-        Infering<(ChatLog, IDGenerator), T, ERR>.ollama(url: url, model: model).map(idGenerator)
+        Infering<(ChatLog, IDGenerator), T, ERR>.ollama(parameters: parameters).map(idGenerator)
     }
 }
 public extension Infering where Input == (ChatLog, IDGenerator), T == Model.MessageContent?, ERR == OllamaClientErrorResponse {
     static func ollama(
-        url: URL = URL(string: "http://localhost:11434")!,
-        model: String = "mistral:latest"
+        parameters: OllamaInfererParameters
     ) -> Self {
-        .init { (chatLog, idGenerator) in
-            let client = OllamaClient(url: url)
-            let payload: Model.OllamaCompletionRequestPayload = .init(messages: [.system(chatLog.system)] + chatLog.messages, model: model, stream: false)
+        let inferer: Inferer? = try? .init(id: "mistral", parameters: parameters)
+        return .init { (chatLog, idGenerator) in
+            let client = OllamaClient(url: parameters.url)
+            let payload: Model.OllamaCompletionRequestPayload = .init(messages: [.system(chatLog.system)] + chatLog.messages, model: parameters.model, stream: false)
             let request: URLRequest = try client.createChatCompletionRequest(payload)
             let response: ClientResponse<OllamaClientResponse, OllamaClientErrorResponse> = try await client.runRequest(request)
             switch response {
             case .error(let openAIClientErrorResponse):
                 print("[error] ", openAIClientErrorResponse.error)
-                return .error(openAIClientErrorResponse)
+                return .init(result: .error(openAIClientErrorResponse), inferer: inferer)
             case .payload(let p):
                 let messageContent: Model.MessageContent? = Model.MessageContent.assistant(p.message.content, tool_calls: nil)
-                return  .infered(messageContent, finished: true)
+                return  .init(result: .infered(messageContent, finished: true), inferer: inferer)
             }
         }
     }
@@ -135,21 +143,18 @@ public extension Infering where Input == (ChatLog, IDGenerator), T == Model.Mess
 
 public extension Infering where Input == ChatLog, T == ChatLog, ERR == OllamaClientErrorResponse {
     static func ollama(
-        url: URL = URL(string: "http://localhost:11434")!,
-        model: String = "mistral:latest",
+        parameters: OllamaInfererParameters,
         idGenerator: IDGenerator
     ) -> Self {
-        Infering<(ChatLog, IDGenerator), ChatLog, OllamaClientErrorResponse>.ollama(url: url, model: model).map(idGenerator)
+        Infering<(ChatLog, IDGenerator), ChatLog, OllamaClientErrorResponse>.ollama(parameters: parameters).map(idGenerator)
     }
 }
 public extension Infering where Input == (ChatLog, IDGenerator), T == ChatLog, ERR == OllamaClientErrorResponse {
     static func ollama(
-        url: URL = URL(string: "http://localhost:11434")!,
-        model: String = "mistral:latest"
+        parameters: OllamaInfererParameters
     ) -> Self {
         Infering<Input, Model.MessageContent?, ERR>.ollama(
-            url: url,
-            model: model
+            parameters: parameters
         ).accumulating { (input, message) in
             return message.map {
                 input.0.appending($0, id: input.1.id())
@@ -181,10 +186,9 @@ public extension Infering where Input == (ChatLog, IDGenerator), T == ChatLog, E
 
 public extension LLMKit where ERR == OllamaClientErrorResponse {
     static func ollama(
-        url: URL = URL(string: "http://localhost:11434")!,
-        model: String = "mistral:latest"
+        parameters: OllamaInfererParameters
     ) -> Self {
-        .infering(.ollama(url: url, model: model))
+        .infering(.ollama(parameters: parameters))
     }
 //    static func ollama(url: URL, model: String) -> Self {
 //        .init { chain, idGenerator in

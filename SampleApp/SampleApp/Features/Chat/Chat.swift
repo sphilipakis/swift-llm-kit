@@ -74,7 +74,7 @@ extension LLMKit<ChatErrorResponse>: TestDependencyKey {
         .init(complete: XCTUnimplemented("\(Self.self).complete"))
     }
     public static var previewValue: LLMKit< ChatErrorResponse> {
-        LLMKit<OllamaClientErrorResponse>.ollama().debug.mapError { r in
+        LLMKit<OllamaClientErrorResponse>.ollama(parameters:.init()).debug.mapError { r in
             ChatErrorResponse(message: r.error)
         }
     }
